@@ -2,7 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:project_brusher/source_lines_transformer.dart';
+import 'package:project_brusher/pubspec_brusher.dart';
 import 'package:yaml/yaml.dart';
 
 Future<void> main(List<String> args) async {
@@ -19,7 +19,7 @@ Future<void> main(List<String> args) async {
     pubspecEntity = fsEntities.singleWhere((element) => element.path.endsWith('pubspec.yaml'));
   } catch (error) {
     if (error is StateError && error.message == 'Too many elements') {
-      print('Too many `pubspec.yaml`files in the project!');
+      print('Too many `pubspec.yaml` files in the project!');
     } else {
       print('This is not a Dart/Flutter project!');
     }
@@ -42,7 +42,7 @@ Future<void> main(List<String> args) async {
   bool isFlutterProj = isFlutterProject(pubspec);
 
   if (isFlutterProj) {
-    brushUpPubspec(pubspecFile);
+    PubspecBrusher.brushUpPubspec(pubspecFile);
   }
 }
 
@@ -61,44 +61,4 @@ bool isFlutterProject(YamlMap yaml) {
   }
 
   return false;
-}
-
-Future<void> brushUpPubspec(File pubspecFile) async {
-  final sb = StringBuffer();
-  final srcStream = pubspecFile.openRead().transform(SourceLinesTransformer().splitDecodedLines);
-  final xtrStream = Stream.fromIterable(LineSplitter().convert(pubspecExtraLines()));
-
-  for (final stream in [srcStream, xtrStream]) {
-    await stream
-        .distinct(
-          // avoid duplicates of the empty strings
-          (p, n) => p.trim() == n.trim(),
-        )
-        .forEach(
-          (s) => sb.writeln(s.trimRight()),
-        );
-  }
-
-  final writeSink = pubspecFile.openWrite();
-  writeSink.write(sb.toString());
-  await writeSink.close();
-}
-
-String pubspecExtraLines() {
-  return '''
-  # assets:
-  #   - images/a_dot_burr.jpeg
-  #   - images/a_dot_ham.jpeg
-  
-  # fonts:
-  #   - family: Schyler
-  #     fonts:
-  #       - asset: fonts/Schyler-Regular.ttf
-  #       - asset: fonts/Schyler-Italic.ttf
-  #         style: italic
-  #   - family: Trajan Pro
-  #     fonts:
-  #       - asset: fonts/TrajanPro.ttf
-  #       - asset: fonts/TrajanPro_Bold.ttf
-  #         weight: 700''';
 }
