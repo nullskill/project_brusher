@@ -1,1 +1,1 @@
-A template Dart/Flutter project brusher CLI utility.
+A CLI utility for brushing Dart/Flutter template project.
