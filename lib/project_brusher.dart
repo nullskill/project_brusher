@@ -8,12 +8,9 @@ import 'package:yaml/yaml.dart';
 Future<void> main(List<String> args) async {
   late final FileSystemEntity pubspecEntity;
 
-  // final dir = Directory(args[0]);
-  final dir = Directory('/Users/ilya/dev/projects/temp');
+  final dir = Directory(args[0]);
+  // final dir = Directory('/Users/ilya/dev/projects/temp');
   final List<FileSystemEntity> fsEntities = await dir.list().where((e) => FileSystemEntity.isFileSync(e.path)).toList();
-  // for (final fsEntity in fsEntities) {
-  //   print(fsEntity);
-  // }
 
   try {
     pubspecEntity = fsEntities.singleWhere((element) => element.path.endsWith('pubspec.yaml'));
