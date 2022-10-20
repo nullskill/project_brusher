@@ -8,6 +8,7 @@ import 'package:yaml/yaml.dart';
 Future<void> main(List<String> args) async {
   late final FileSystemEntity pubspecEntity;
 
+  // TODO: Make this via the Uri with checks for validity
   final dir = Directory(args[0]);
   // final dir = Directory('/Users/ilya/dev/projects/temp');
   final List<FileSystemEntity> fsEntities = await dir.list().where((e) => FileSystemEntity.isFileSync(e.path)).toList();
