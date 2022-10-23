@@ -8,33 +8,35 @@ import 'package:yaml/yaml.dart';
 Future<void> main(List<String> args) async {
   late final FileSystemEntity pubspecEntity;
 
-  // TODO: Make this via the Uri with checks for validity
-  final dir = Directory(args[0]);
-  // final dir = Directory('/Users/ilya/dev/projects/temp');
+  if (args.isEmpty) {
+    throw FormatException('No project path provided!');
+  }
+
+  // final path = '/Users/ilya/dev/projects/temp';
+  final path = args.first;
+
+  final dir = Directory.fromUri(getProjectUri(path));
   final List<FileSystemEntity> fsEntities = await dir.list().where((e) => FileSystemEntity.isFileSync(e.path)).toList();
 
   try {
     pubspecEntity = fsEntities.singleWhere((element) => element.path.endsWith('pubspec.yaml'));
   } catch (error) {
     if (error is StateError && error.message == 'Too many elements') {
-      print('Too many `pubspec.yaml` files in the project!');
+      throw Exception('Too many `pubspec.yaml` files in the project!');
     } else {
-      print('This is not a Dart/Flutter project!');
+      throw Exception('This is not a Dart/Flutter project!');
     }
-    return;
   }
 
   final pubspecFile = File(pubspecEntity.path);
   if (await pubspecFile.length() == 0) {
-    print('`pubspec.yaml` is empty!');
-    return;
+    throw Exception('`pubspec.yaml` is empty!');
   }
 
   final pubspecString = await pubspecFile.openRead().transform(utf8.decoder).first;
   final pubspec = loadYaml(pubspecString, sourceUrl: pubspecFile.uri);
   if (pubspec is! YamlMap) {
-    print('Unable to read `pubspec.yaml`');
-    return;
+    throw Exception('Unable to read `pubspec.yaml`');
   }
 
   bool isFlutterProj = isFlutterProject(pubspec);
@@ -42,6 +44,10 @@ Future<void> main(List<String> args) async {
   if (isFlutterProj) {
     PubspecBrusher.brushUpPubspec(pubspecFile);
   }
+}
+
+Uri getProjectUri(String path) {
+  return Uri.parse(path);
 }
 
 bool isFlutterProject(YamlMap yaml) {
