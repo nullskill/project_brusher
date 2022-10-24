@@ -12,7 +12,7 @@ Future<void> main(List<String> args) async {
     throw FormatException('No project path provided!');
   }
 
-  // final path = '/Users/ilya/dev/projects/temp';
+  // final path = '/Users/ilya/dev/projects/ttt';
   final path = args.first;
 
   final dir = Directory.fromUri(getProjectUri(path));
